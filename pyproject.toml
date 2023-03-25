@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "prototype_it2002"
+version = "0.1.0"
+description = ""
+authors = ["User"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+flask = "^2.2.3"
+psycopg2-binary = "^2.9.5"
+flask-cors = "^3.0.10"
+sqlalchemy = "^2.0.7"
+sqlalchemy-utils = "^0.40.0"
+flask-sqlalchemy = "^3.0.3"
+flask-login = "^0.6.2"
+python-dotenv = "^1.0.0"
+faker = "^18.3.1"
+flask-migrate = "^4.0.4"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

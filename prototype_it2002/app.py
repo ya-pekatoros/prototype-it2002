@@ -1,27 +1,110 @@
-# ? Cross-origin Resource Sharing - here it allows the view and core applications deployed on different ports to communicate. No need to know anything about it since it's only used once
-from flask_cors import CORS, cross_origin
-# ? Python's built-in library for JSON operations. Here, is used to convert JSON strings into Python dictionaries and vice-versa
-import json
 # ? flask - library used to write REST API endpoints (functions in simple words) to communicate with the client (view) application's interactions
 # ? request - is the default object used in the flask endpoints to get data from the requests
 # ? Response - is the default HTTP Response object, defining the format of the returned data by this api
-from flask import Flask, request, Response
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_login import UserMixin
+import uuid
 # ? sqlalchemy is the main library we'll use here to interact with PostgresQL DBMS
-import sqlalchemy
 # ? Just a class to help while coding by suggesting methods etc. Can be totally removed if wanted, no change
-from typing import Dict
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+db = SQLAlchemy()
 
+class User(UserMixin, db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.String(36), primary_key=True, default=uuid.uuid4)
+    name = db.Column(db.String(255))
+    email = db.Column(db.String(100), nullable=False, unique=True)
+    password = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.Enum('STUDENT', 'TUTOR', name='user_roles'), nullable=False)
+    current_education = db.Column(db.String(255))
+    budget = db.Column(db.String(255))
+    subject = db.Column(db.String(255))
+    address = db.Column(db.String(255))
+    grades = db.Column(db.String(255))
+    qualification = db.Column(db.String(255))
+    residential_zone = db.Column(db.String(255))
+    levels_taught = db.Column(db.String(255))
+    subjects_taught = db.Column(db.String(255))
+    rate_per_hour = db.Column(db.String(255))
+    gender = db.Column(db.String(255))
+    number_of_years_of_teaching_experience = db.Column(db.String(255))
+
+# ? This method can be used by waitress-serve CLI 
+def create_app():
+    app = Flask(__name__)
 # ? web-based applications written in flask are simply called apps are initialized in this format from the Flask base class. You may see the contents of `__name__` by hovering on it while debugging if you're curious
-app = Flask(__name__)
 
+    app.config['SECRET_KEY'] = os.getenv("FLASK_SECRET_KEY")
+    DATABASE_NAME = os.getenv("DATABASE_NAME")
+    DATABASE_USER = os.getenv("DATABASE_USER")
+    DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")
+    DATABASE_HOST = os.getenv("DATABASE_HOST")
+    DATABASE_PORT = os.getenv("DATABASE_PORT")
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{ DATABASE_USER }:{ DATABASE_PASSWORD }@{ DATABASE_HOST }:{ DATABASE_PORT }/{ DATABASE_NAME }'
+
+    db.init_app(app)
+
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login'
+    login_manager.init_app(app)
+
+    
+    with app.app_context():
+        db.create_all()
+
+    
+    @login_manager.user_loader
+    def load_user(user_id):
+        # since the user_id is just the primary key of our user table, use it in the query for the user
+        return User.query.get(user_id)
+
+        # blueprint for auth routes in our app
+    from auth import auth_ as auth_blueprint
+    app.register_blueprint(auth_blueprint)
+
+    # blueprint for non-auth parts of app
+    from main import main_ as main_blueprint
+    app.register_blueprint(main_blueprint)
+
+    return app
+
+# ? The port where the debuggable DB management API is served
+PORT = 5000
+# ? Running the flask app on the localhost/0.0.0.0, port 2222
+# ? Note that you may change the port, then update it in the view application too to make it work (don't if you don't have another application occupying it)
+if __name__ == "__main__":
+    app = create_app()
+    app.run("0.0.0.0", PORT)
+    # ? Uncomment the below lines and comment the above lines below `if __name__ == "__main__":` in order to run on the production server
+    # ? Note that you may have to install waitress running `pip install waitress`
+    # ? If you are willing to use waitress-serve command, please add `/home/sadm/.local/bin` to your ~/.bashrc
+    # from waitress import serve
+    # serve(app, host="0.0.0.0", port=PORT)
+
+
+
+# ? Cross-origin Resource Sharing - here it allows the view and core applications deployed on different ports to communicate. No need to know anything about it since it's only used once
+# from flask_cors import CORS, cross_origin
+# ? Python's built-in library for JSON operations. Here, is used to convert JSON strings into Python dictionaries and vice-versa
+# import json
+
+
+
+
+
+"""
 # ? Just enabling the flask app to be able to communicate with any request source
 CORS(app)
 
 # ? building our `engine` object from a custom configuration string
 # ? for this project, we'll use the default postgres user, on a database called `postgres` deployed on the same machine
 YOUR_POSTGRES_PASSWORD = "postgres"
-connection_string = f"postgresql://postgres:{YOUR_POSTGRES_PASSWORD}@localhost/postgres"
+# connection_string = f"postgresql://postgres:{YOUR_POSTGRES_PASSWORD}@localhost/postgres"
 engine = sqlalchemy.create_engine(
     "postgresql://postgres:postgres@localhost/postgres"
 )
@@ -153,7 +236,7 @@ def generate_table_return_result(res):
     output["columns"] = columns  # ? Stores the fields
     output["rows"] = rows  # ? Stores the tuples
 
-    """
+    """"""
         The returned object format:
         {
             "columns": ["a","b","c"],
@@ -162,7 +245,7 @@ def generate_table_return_result(res):
                 {"a":4,"b":5,"c":6}
             ]
         }
-    """
+    """"""
     # ? Returns the stringified JSON object
     return json.dumps(output)
 
@@ -237,19 +320,4 @@ def generate_create_table_statement(table: Dict):
     # ? closing the final statement (by removing the last ',' and adding ');' termination and returning it
     statement = statement[:-1] + ");"
     return sqlalchemy.text(statement)
-
-# ? This method can be used by waitress-serve CLI 
-def create_app():
-   return app
-
-# ? The port where the debuggable DB management API is served
-PORT = 2222
-# ? Running the flask app on the localhost/0.0.0.0, port 2222
-# ? Note that you may change the port, then update it in the view application too to make it work (don't if you don't have another application occupying it)
-if __name__ == "__main__":
-    app.run("0.0.0.0", PORT)
-    # ? Uncomment the below lines and comment the above lines below `if __name__ == "__main__":` in order to run on the production server
-    # ? Note that you may have to install waitress running `pip install waitress`
-    # ? If you are willing to use waitress-serve command, please add `/home/sadm/.local/bin` to your ~/.bashrc
-    # from waitress import serve
-    # serve(app, host="0.0.0.0", port=PORT)
+"""

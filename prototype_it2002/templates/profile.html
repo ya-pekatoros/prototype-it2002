@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+  <h1 class="title mt-3">
+    Welcome, {{ name }}!
+  </h1>
+  <div class="table-responsive col-xl-6 col-12 mx-2 mt-3">
+    <table id="myTable" class="table table-bordered table-hover text-nowrap" data-test="urls">
+        <tbody>
+            <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+              <td>id</td>
+              <td>{{ current_user.id }}</td>
+            </tr>
+            <tr>
+              <td>Name</td>
+              <td>{{ current_user.name }}</td>
+            </tr>
+            <tr>
+              <td>Email</td>
+              <td>{{ current_user.email }}</td>
+            </tr>
+            <tr>
+              <td>Role</td>
+              <td>{{ current_user.role }}</td>
+            </tr>
+            {% if current_user.role == "STUDENT" %}
+            <tr>
+              <td>Current_education</td>
+              <td>{{ current_user.current_education }}</td>
+            </tr>
+            <tr>
+              <td>Subject</td>
+              <td>{{ current_user.subject }}</td>
+            </tr>
+            <tr>
+              <td>Address</td>
+              <td>{{ current_user.address }}</td>
+            </tr>
+            <tr>
+              <td>Grades</td>
+              <td>{{ current_user.grades }}</td>
+            </tr>
+            {% endif %}
+            {% if current_user.role == "TUTOR" %}
+            <tr>
+              <td>Qualification</td>
+              <td>{{ current_user.qualification }}</td>
+            </tr>
+            <tr>
+              <td>Residential_zone</td>
+              <td>{{ current_user.residential_zone }}</td>
+            </tr>
+            <tr>
+              <td>Levels_taught</td>
+              <td>{{ current_user.levels_taught }}</td>
+            </tr>
+            <tr>
+              <td>Subjects_taught</td>
+              <td>{{ current_user.subjects_taught }}</td>
+            </tr>
+            <tr>
+              <td>Rate_per_hour</td>
+              <td>{{ current_user.rate_per_hour }}</td>
+            </tr>
+            <tr>
+              <td>Gender</td>
+              <td>{{ current_user.gender }}</td>
+            </tr>
+            <tr>
+              <td>Number_of_years_of_teaching_experience</td>
+              <td>{{ current_user.number_of_years_of_teaching_experience }}</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+  </div>
+{% endblock %}

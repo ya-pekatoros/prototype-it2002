@@ -27,3 +27,4 @@ Pipfile.lock
 __pycache__
 nohup.out
 package-lock.json
+.env
