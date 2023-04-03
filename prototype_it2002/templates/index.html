@@ -1,12 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="col-4 offset-4 mt-3">
+<div class="col-4 offset-4 mt-3 text-center">
 <h1 class="title">
   Students and Tutors
 </h1>
 <h2 class="subtitle">
   Find your tutor or students
 </h2>
+{% if session['current_user'] %}
+{% if session['current_user']['role'] == 'STUDENT' %}
+<div class="mt-4">
+<form method="post" action="{{ url_for('main.find_form') }}">
+  <button type="submit" class="btn btn-primary btn-lg">Find me a TUTOR</button>
+</form>
+</div>
+{% endif %}
+{% if session['current_user']['role'] == 'TUTOR' %}
+<div class="mt-4">
+<form method="post" action="{{ url_for('main.find_form') }}">
+  <button type="submit" class="btn btn-primary btn-lg">Find me a STUDENT</button>
+</form>
+</div>
+{% endif %}
+{% endif %}
 </div>
 {% endblock %}

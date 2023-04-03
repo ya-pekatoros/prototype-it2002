@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+  <h3 class="title mt-3">
+    {% if current_user.role == "TUTOR" %}
+    Here results of finding students for you, {{ current_user.name }}!
+    {% endif %}
+    {% if current_user.role == "STUDENT" %}
+    Here results of finding tutors for you, {{ current_user.name }}!
+    {% endif %}
+  </h3>
+  <div class="table-responsive col-xl-8 col-12 mx-2 mt-3">
+    <table id="myTable" class="table table-bordered table-hover text-nowrap" data-test="urls">
+        <tbody>
+            <tr>
+              {% for key in results[0].keys() if results[0][key]%}
+                <th>{{ key.capitalize() }}</th>
+              {% endfor %}
+            </tr>
+            {% for user in results %}
+            <tr>
+              {% for value in user.values() if value %}
+                <td>{{ value }}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
