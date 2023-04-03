@@ -88,7 +88,7 @@ def get_matches(email: str=None, preferred_zones: list=None, preferred_qualifica
                     result = curs.fetchall()
                 except:
                     return None
-            if preferred_qualification:
+            elif preferred_qualification:
                 if preferred_gender == "No preference":
                     preferred_gender = ["Male", "Female"]
                 else:
